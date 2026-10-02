@@ -1,14 +1,14 @@
 [
   {
-    "title": "Premium Wireless Earbuds",
-    "price": "$49.99",
-    "image": "https://unsplash.com",
-    "affiliateUrl": "https://amazon.com"
+    "productTitle": "Premium Wireless Earbuds for iPhone & Android",
+    "imageUrl": "https://alicdn.com",
+    "targetAppSalePrice": "14.99",
+    "promotionUrl": "https://aliexpress.com"
   },
   {
-    "title": "Smart Watch Series 9",
-    "price": "$299.00",
-    "image": "https://unsplash.com",
-    "affiliateUrl": "https://amazon.com"
+    "productTitle": "Smart Watch Series 9 Waterproof Fitness Tracker",
+    "imageUrl": "https://alicdn.com",
+    "targetAppSalePrice": "29.00",
+    "promotionUrl": "https://aliexpress.com"
   }
 ]
