@@ -27,7 +27,6 @@
     </main>
 
     <script>
-        // Citim lista de produse de pe GitHub pentru a sti ce produse sa cautam live
         fetch('products.json')
             .then(response => response.json())
             .then(products => {
@@ -38,20 +37,16 @@
                     const title = product.productTitle || product.title || 'Trending Item';
                     const image = product.imageUrl || product.image || '';
                     const link = product.promotionUrl || product.affiliateUrl || '#';
-                    
-                    // ID-ul unic al produsului extras din link-ul AliExpress
                     const cardId = 'price-' + Math.random().toString(36).substr(2, 9);
 
-                    // Cream structura produsului pe ecran
                     const card = `
                         <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between border border-gray-100">
                             <div class="relative pt-[100%] bg-gray-50">
-                                <img class="absolute inset-0 w-full h-full object-cover p-2" src="${image}" alt="${title}">
+                                <img class="absolute inset-0 w-full h-full object-cover p-2" src="${image}" alt="${title}" onerror="this.src='https://placehold.co'">
                             </div>
                             <div class="p-4 flex-grow flex flex-col justify-between">
                                 <div>
                                     <h3 class="text-sm font-semibold text-gray-900 line-clamp-2 h-10 mb-2">${title}</h3>
-                                    <!-- Pretul se va schimba din LOADING in pretul real live via script -->
                                     <p id="${cardId}" class="text-lg font-bold text-red-600 mb-4">Loading price...</p>
                                 </div>
                                 <a href="${link}" target="_blank" rel="noopener noreferrer" class="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded text-center block transition-colors duration-200">
@@ -62,32 +57,24 @@
                     `;
                     grid.innerHTML += card;
 
-                    // TRUCUL AUTOMAT: Mergem direct pe pagina publica a produsului sa luam pretul din secunda asta
-                    // Folosim un serviciu gratuit de tip proxy pentru a ocoli blocarile
-                    const productUrl = link;
-                    fetch('https://allorigins.win' + encodeURIComponent(productUrl))
-                        .then(res => {
-                            if (res.ok) return res.json();
-                            throw new Error('Network error');
-                        })
+                    // Extragem pretul live din codul paginii folosind un proxy gratuit
+                    fetch('https://allorigins.win' + encodeURIComponent(link))
+                        .then(res => { if (res.ok) return res.json(); throw new Error(); })
                         .then(data => {
-                            // Cautam structura de pret in codul paginii AliExpress
                             const html = data.contents;
                             const priceRegex = /"actPrice":"([^"]+)"|"formatedAmount":"([^"]+)"/g;
                             const match = priceRegex.exec(html);
-                            
                             const priceElement = document.getElementById(cardId);
+                            
                             if (match && (match[1] || match[2])) {
                                 const livePrice = match[1] || match[2];
                                 priceElement.innerText = livePrice.includes('') ? livePrice : '' + livePrice;
                             } else {
-                                // Daca pretul live nu poate fi citit in acea milisecunda, punem pretul estimat din Excel
                                 priceElement.innerText = product.targetAppSalePrice || product.price || 'Check Price';
                             }
                         })
                         .catch(() => {
-                            const priceElement = document.getElementById(cardId);
-                            priceElement.innerText = product.targetAppSalePrice || product.price || 'Check Price';
+                            document.getElementById(cardId).innerText = product.targetAppSalePrice || product.price || 'Check Price';
                         });
                 });
             });
