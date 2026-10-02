@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SellMarketON | Best Amazon Deals & Top Products</title>
+    <script src="https://tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-orange-600 tracking-tight">SellMarket<span class="text-gray-900">ON</span></h1>
+            <p class="text-sm text-gray-500 hidden sm:block">Top Rated Amazon Deals & Trending Products</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">Featured Tech & Gadgets</h2>
+            <p class="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">Handpicked top-rated products with unbeatable prices.</p>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Products will load here automatically -->
+        </div>
+    </main>
+
+    <script>
+        fetch('products.json')
+            .then(response => response.json())
+            .then(products => {
+                const grid = document.getElementById('products-grid');
+                products.forEach(product => {
+                    const card = `
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between">
+                            <div class="relative pt-[100%] bg-gray-100">
+                                <img class="absolute inset-0 w-full h-full object-cover p-4" src="${product.image}" alt="${product.title}">
+                            </div>
+                            <div class="p-4 flex-grow flex flex-col justify-between">
+                                <div>
+                                    <h3 class="text-sm font-semibold text-gray-900 line-clamp-2 h-10 mb-2">${product.title}</h3>
+                                    <p class="text-lg font-bold text-gray-900 mb-4">${product.price}</p>
+                                </div>
+                                <a href="${product.affiliateUrl}" target="_blank" rel="noopener noreferrer" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded text-center block transition-colors duration-200">
+                                    Check Price on Amazon
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    grid.innerHTML += card;
+                });
+            })
+            .catch(error => console.error('Error loading products:', error));
+    </script>
+</body>
+</html>
