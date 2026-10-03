@@ -1,89 +1,101 @@
 import os
 import json
-import requests
+import re
 from aliexpress_api import AliexpressApi, models
 
-# Preluăm cheile secrete din GitHub Secrets
-APP_KEY = os.environ.get("ALI_APP_KEY")
-APP_SECRET = os.environ.get("ALI_APP_SECRET")
-TRACKING_ID = "sellmarketon_2026"
+# 1. Configurare chei secrete și API
+api_key = os.environ.get('ALIEXPRESS_APP_KEY')
+api_secret = os.environ.get('ALIEXPRESS_APP_SECRET')
+tracking_id = "ID_TAU_DE_AFILIAT" # Pune ID-ul tău de afiliat AliExpress aici
 
-def genereaza_magazin():
-    if not APP_KEY or not APP_SECRET:
-        print("Eroare: Cheile API nu sunt configurate corect în GitHub Secrets!")
-        return
+aliexpress = AliexpressApi(api_key, api_secret, models.Language.EN, models.Currency.EUR, tracking_id)
 
-    # Inițializăm API-ul oficial AliExpress
-    aliexpress = AliexpressApi(APP_KEY, APP_SECRET, models.Language.EN, models.Currency.USD, TRACKING_ID)
-    
-    # Creează folderul de produse pentru site dacă nu există
-    if not os.path.exists("produse"):
-        os.makedirs("produse")
-        
-    print("Se caută produse reale pe AliExpress...")
-    
-    try:
-        # Căutăm produse reale după cuvântul cheie 'smartwatch'
-        rezultat = aliexpress.get_products(keywords='smartwatch', page_size=20)
-        
-        if not rezultat or not hasattr(rezultat, 'products') or not rezultat.products:
-            print("Nu s-au găsit produse sau API-ul AliExpress nu a returnat date active.")
-            return
+# Funcție simplă pentru a transforma titlul produsului într-un link frumos (SEO URL)
+# Exemplu: "Ceas Inteligent Rezistent la Apă!" -> "ceas-inteligent-rezistent-la-apa"
+def slugify(text):
+    text = text.lower()
+    text = re.sub(r'[^a-z0-9\s-]', '', text)
+    text = re.sub(r'[\s-]+', '-', text).strip('-')
+    return text
 
-        produse_salvate = 0
-        
-        for prod in rezultat.products:
-            prod_id = getattr(prod, 'product_id', '')
-            titlu = getattr(prod, 'product_title', 'Produs AliExpress')
-            pret = getattr(prod, 'target_sale_price', '0.00')
-            imagine = getattr(prod, 'product_main_image_url', '')
-            url_detalii = getattr(prod, 'product_detail_url', '')
-            
-            if not prod_id:
-                continue
+# 2. Creăm folderul pentru paginile individuale dacă nu există
+os.makedirs('produse', existent_ok=True)
 
-            # Generăm link-ul de afiliat
-            link_afiliat = url_detalii
-            try:
-                linkuri_afiliat = aliexpress.get_affiliate_links(url_detalii)
-                if linkuri_afiliat and hasattr(linkuri_afiliat, 'promotion_link'):
-                    link_afiliat = linkuri_afiliat.promotion_link
-            except Exception:
-                pass
+print("Se descarcă produsele din AliExpress...")
+# Preluăm produsele (poți repeta cererea pentru categorii diferite ca să strângi 5000)
+produse_ali = aliexpress.get_hot_products(keywords="gadgets", page_size=50) 
 
-            # Structura paginii HTML gata formatată pentru SEO gratuit
-            continut_html = f"""<!DOCTYPE html>
+sitemap_links = []
+produse_pentru_homepage = []
+
+# 3. Șablonul HTML pentru PAGINA INDIVIDUALĂ a fiecărui produs
+TEMPLATE_PRODUS = """<!DOCTYPE html>
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <title>{titlu} - Oferta SellMarketON</title>
-    <meta name="description" content="Cumpără online {titlu} la prețul special de {pret} USD. Livrare prin AliExpress direct la tine acasă.">
-    <style>
-        body {{ font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f9f9f9; }}
-        .card {{ background: white; max-width: 500px; margin: 0 auto; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }}
-        .prod-img {{ max-width: 100%; height: auto; border-radius: 8px; }}
-        .btn-cumpara {{ display: inline-block; background-color: #ff4747; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 5px; margin-top: 15px; }}
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{titlu} | SellMarketON</title>
+    <meta name="description" content="Cumpără {titlu} la cel mai bun preț pe SellMarketON. Reduceri exclusive AliExpress, poze și detalii tehnice comerciale.">
+    <link rel="stylesheet" href="../style.css"> <!-- Stilul tău global -->
 </head>
 <body>
-    <div class="card">
-        <h1>{titlu}</h1>
-        <img src="{imagine}" class="prod-img" alt="{titlu}">
-        <h2>Preț: {pret} USD</h2>
-        <a href="{link_afiliat}" target="_blank" class="btn-cumpara">Cumpără de pe AliExpress</a>
-    </div>
+    <header>
+        <a href="../index.html">⬅️ Înapoi la SellMarketON</a>
+    </header>
+    
+    <main class="product-container">
+        <div class="product-image">
+            <img src="{imagine_url}" alt="{titlu}">
+        </div>
+        <div class="product-details">
+            <h1>{titlu}</h1>
+            <p class="price">Preț: {pret} EUR</p>
+            <a href="{link_afiliat}" target="_blank" rel="nofollow sponsored" class="buy-button">
+                Vezi Oferta pe AliExpress 🛒
+            </a>
+        </div>
+    </main>
 </body>
-</html>"""
-            
-            # Salvăm pagina fizică a produsului
-            with open(f"produse/produs-{prod_id}.html", "w", encoding="utf-8") as f:
-                f.write(continut_html)
-            produse_salvate += 1
+</html>
+"""
 
-        print(f"Succes! S-au generat {produse_salvate} pagini de produse REALE.")
+# 4. Generarea automată a celor 5.000 de pagini separate
+for prod in Aegean_ali:
+    titlu_curat = prod.product_title
+    url_prietenos = slugify(titlu_curat) + "-" + str(prod.product_id) + ".html"
+    cale_fisier = os.path.join('produse', url_prietenos)
+    
+    # Completăm șablonul cu datele acestui produs specific
+    html_produs = TEMPLATE_PRODUS.format(
+        titlu=titlu_curat,
+        imagine_url=prod.product_main_image_url,
+        pret=prod.target_sale_price,
+        link_afiliat=prod.promotion_link
+    )
+    
+    # Salvăm pagina fizică pe GitHub (.html separat!)
+    with open(cale_fisier, 'w', encoding='utf-8') as f:
+        f.write(html_produs)
         
-    except Exception as e:
-        print(f"A apărut o eroare la interogarea API-ului real: {e}")
+    # Salvăm link-ul pentru sitemap (SEO) și pentru prima pagină
+    sitemap_links.append(f"https://github.io{url_prietenos}")
+    produse_pentru_homepage.append({
+        "titlu": titlu_curat,
+        "url": f"produse/{url_prietenos}",
+        "imagine": prod.product_main_image_url,
+        "pret": prod.target_sale_price
+    })
 
-if __name__ == "__main__":
-    genereaza_magazin()
+# 5. Generăm și fișierul sitemap.xml automat pentru Google
+with open('sitemap.xml', 'w', encoding='utf-8') as f:
+    f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://sitemaps.org">\n')
+    for link in sitemap_links:
+        f.write(f'  <url><loc>{link}</loc><changefreq>daily</changefreq></url>\n')
+    f.write('</urlset>')
+
+# 6. Actualizăm și lista globală JSON pentru index.html (dacă ai nevoie de ea)
+with open('products.json', 'w', encoding='utf-8') as f:
+    json.dump(produse_pentru_homepage, f, indent=4, ensure_ascii=False)
+
+print(f"Succes! S-au generat paginile individuale și sitemap-ul.")
+
