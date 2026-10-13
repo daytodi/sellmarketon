@@ -8,7 +8,7 @@ import hashlib
 APP_KEY = os.environ.get("ALI_APP_KEY", "549832")
 SECRET = os.environ.get("ALI_SECRET")
 
-# Lista ta cu cele 4 produse reale de pe AliExpress
+# Lista ta cu cele 4 produse reale active de pe AliExpress
 LISTA_PRODUSE_ID = [
     "1005008384803828", 
     "1005007341784572",
@@ -23,7 +23,7 @@ def genereaza_semnatura(parametri, secret):
     return hashlib.md5(sir_final.encode("utf-8")).hexdigest().upper()
 
 def obtine_date_produs(id_uri_produse):
-    # Serverul global stabil AliExpress care a mers de prima dată
+    # ADRESA REALA SI OFICIALA DE SERVER API (ENDPOINT GLOBAL)
     url_api = "https://aliexpress.com"
     
     parametri = {
@@ -40,7 +40,11 @@ def obtine_date_produs(id_uri_produse):
     
     try:
         raspuns = requests.get(url_api, params=parametri, timeout=15)
-        return raspuns.json()
+        if raspuns.status_code == 200:
+            return raspuns.json()
+        else:
+            print(f"Serverul AliExpress a raspuns cu eroarea: {raspuns.status_code}")
+            return None
     except Exception as e:
         print(f"Eroare de conexiune la API-ul AliExpress: {e}")
         return None
@@ -77,7 +81,7 @@ def genereaza_pagina_produs_seo(prod):
         <div class="details">
             <div>
                 <h1>{prod['titlu']}</h1>
-                <div class="price">{prod['pret']} {prod['valuta']}</div>
+                <div class="price">{{prod['pret']} {prod['valuta']}</div>
             </div>
             <a href="{prod['link_afiliat']}" target="_blank" rel="noopener noreferrer nofollow" class="btn">Cumpără de pe AliExpress →</a>
         </div>
@@ -113,7 +117,7 @@ def porneste_actualizarea():
                         rezultate_noi.append(item)
                         genereaza_pagina_produs_seo(item)
             except Exception as e:
-                print(f"Eroare la citirea datelor primite: {e}")
+                print(f"Eroare la citirea datelor interne: {e}")
         
         time.sleep(1.5)
 
@@ -127,5 +131,3 @@ if __name__ == "__main__":
         print("EROARE: Lipsește codul tău secret ALI_SECRET în GitHub Settings!")
     else:
         porneste_actualizarea()
-
-
