@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SellMarketON - Top Oferte și Gadgeturi AliExpress</title>
+    <meta name="description" content="Descoperă cele mai bune reduceri și produse de top de pe AliExpress. Prețuri actualizate automat la fiecare 3 zile.">
+    <!-- Tailwind CSS pentru un design modern și curat -->
+    <script src="https://jsdelivr.net"></script>
+    <link rel="stylesheet" href="https://cloudflare.com">
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <!-- Header / Navigație -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <a href="index.html" class="text-2xl font-black tracking-tight bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent flex items-center gap-2">
+                <i class="fa-solid fa-bag-shopping text-orange-500"></i> SellMarket<span class="text-gray-900">ON</span>
+            </a>
+            <div class="w-full sm:w-96 relative">
+                <input type="text" id="searchBar" placeholder="Caută produse de top..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 bg-gray-50 transition-all">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-400 text-sm"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Erou Secțiune (SEO H1) -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <section class="text-center py-8 max-w-2xl mx-auto">
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3 text-gray-900">Cele Mai Generate și Căutate Produse AliExpress</h1>
+            <p class="text-gray-500 text-sm sm:text-base">Prețurile și stocurile sunt verificate și actualizate automat direct prin API-ul oficial de afiliere.</p>
+        </section>
+
+        <!-- Gridul cu Produse -->
+        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            <!-- Produsele vor fi injectate automat din products.json -->
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <i class="fa-solid fa-spinner animate-spin text-3xl mb-2 text-orange-500"></i>
+                <p>Se încarcă catalogul de produse...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Logică Afișare Dinamică și Căutare -->
+    <script>
+        let allProducts = [];
+        const grid = document.getElementById('productsGrid');
+        const searchInput = document.getElementById('searchBar');
+
+        // Preluăm datele actualizate din fișierul generat de script
+        fetch('products.json')
+            .then(res => res.json())
+            .then(data => {
+                allProducts = data;
+                displayProducts(allProducts);
+            })
+            .catch(err => {
+                grid.innerHTML = `<div class="col-span-full text-center text-red-500 py-12"><i class="fa-solid fa-circle-exclamation text-2xl mb-2"></i><p>Nu s-a putut încărca catalogul de produse.</p></div>`;
+            });
+
+        function displayProducts(products) {
+            if(products.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-12"><p>Nu am găsit niciun produs conform căutării.</p></div>`;
+                return;
+            }
+            
+            grid.innerHTML = products.map(prod => `
+                <article class="bg-white rounded-2xl border border-gray-100 shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col group">
+                    <div class="relative pt-[100%] overflow-hidden bg-gray-100">
+                        <img src="${prod.imagine}" alt="${prod.titlu}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h2 class="text-sm font-semibold text-gray-800 line-clamp-2 mb-2 group-hover:text-orange-500 transition-colors h-10">
+                            <a href="produse/${prod.id}.html">${prod.titlu}</a>
+                        </h2>
+                        <div class="mt-auto pt-2 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs text-gray-400 block font-medium">Preț Redus</span>
+                                <span class="text-lg font-black text-red-600">${prod.pret} ${prod.valuta}</span>
+                            </div>
+                            <a href="produse/${prod.id}.html" class="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-xl transition-colors text-center text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs">
+                                Detalii <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        // Filtrare în timp real la tastare
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = allProducts.filter(p => p.titlu.toLowerCase().includes(query));
+            displayProducts(filtered);
+        });
+    </script>
+</body>
+</html>
