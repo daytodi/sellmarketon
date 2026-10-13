@@ -8,10 +8,8 @@ APP_KEY = "549832"
 SECRET = os.environ.get("ALI_SECRET", "")
 
 LISTA_PRODUSE_ID = [
-    "1005008384803828", 
-    "1005007341784572",
-    "1005010701830877",
-    "1005008156418926"
+    "1005006429381742",
+    "1005005834891122"
 ]
 
 def genereaza_semnatura(parametri, secret):
@@ -129,6 +127,7 @@ def porneste_actualizarea():
 
 if __name__ == "__main__":
     porneste_actualizarea()
+
 
 
 
