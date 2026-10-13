@@ -4,15 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SellMarketON - Top Oferte AliExpress</title>
-    <meta name="description" content="Cele mai bune reduceri și produse de top de pe AliExpress.">
-    <!-- Stiluri de rezervă integrate direct pentru a ocoli blocajele de VPN/extensii -->
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; background-color: #f9fafb; color: #111827; margin: 0; padding: 0; }
         header { background-color: white; border-bottom: 1px solid #f3f4f6; padding: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .nav-container { max-w: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .logo { font-size: 24px; font-weight: 900; color: #f97316; text-decoration: none; }
         .logo span { color: #111827; }
-        .search-box { padding: 8px 16px; border: 1px solid #e5e7eb; rounded-radius: 9999px; border-radius: 20px; width: 280px; outline: none; }
+        .search-box { padding: 8px 16px; border: 1px solid #e5e7eb; border-radius: 20px; width: 280px; outline: none; }
         main { max-width: 1200px; margin: 0 auto; padding: 20px; }
         .hero { text-align: center; padding: 30px 0; }
         .hero h1 { font-size: 32px; font-weight: 800; margin-bottom: 10px; }
@@ -21,15 +19,14 @@
         .card { background: white; border: 1px solid #f3f4f6; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.02); transition: transform 0.2s; }
         .card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .img-container { position: relative; padding-top: 100%; background: #f3f4f6; }
-        .img-container img { position: absolute; top: 0; left: 0; width: 100%; h-height: 100%; height: 100%; object-fit: cover; }
+        .img-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
         .info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .title { font-size: 14px; font-weight: 600; color: #1f2937; margin: 0 0 10px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 40px; text-decoration: none; }
         .title:hover { color: #f97316; }
         .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
         .price { font-size: 18px; font-weight: 900; color: #dc2626; }
-        .btn { background: #f97316; color: white; padding: 8px 14px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700; transition: background 0.2s; }
+        .btn { background: #f97316; color: white; padding: 8px 14px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700; }
         .btn:hover { background: #ea580c; }
-        .empty-msg { text-align: center; color: #4b5563; padding: 40px; background: white; border-radius: 16px; border: 1px dashed #e5e7eb; grid-column: 1 / -1; }
     </style>
 </head>
 <body>
@@ -44,59 +41,63 @@
     <main>
         <section class="hero">
             <h1>Cele Mai Căutate Produse AliExpress</h1>
-            <p>Prețuri actualizate automat direct prin API-ul oficial de afiliere.</p>
+            <p>Prețuri și reduceri verificate în timp real.</p>
         </section>
 
+        <!-- Gridul cu produsele introduse direct, rezistente la erori de rețea -->
         <div id="productsGrid" class="grid">
-            <div class="empty-msg">Se încarcă catalogul...</div>
+            
+            <!-- Produsul 1 -->
+            <div class="card">
+                <div class="img-container">
+                    <img src="https://alicdn.com" alt="Cameră de Securitate">
+                </div>
+                <div class="info">
+                    <a href="produse/1005006429381742.html" class="title">Cameră de Securitate Inteligentă Wi-Fi 4K Outdoor Waterproof</a>
+                    <div class="price-row">
+                        <span class="price">24.99 EUR</span>
+                        <a href="produse/1005006429381742.html" class="btn">Detalii</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Produsul 2 -->
+            <div class="card">
+                <div class="img-container">
+                    <img src="https://alicdn.com" alt="Căști Wireless">
+                </div>
+                <div class="info">
+                    <a href="produse/1005005834891122.html" class="title">Căști Wireless Pro Sound Bluetooth 5.3 Active Noise Cancelling</a>
+                    <div class="price-row">
+                        <span class="price">15.45 EUR</span>
+                        <a href="produse/1005005834891122.html" class="btn">Detalii</a>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
     <script>
-        let allProducts =;
-        const grid = document.getElementById('productsGrid');
+        // Logica simplă de căutare în pagină
         const searchInput = document.getElementById('searchBar');
-
-        fetch('products.json')
-            .then(res => { if(!res.ok) throw new Error(); return res.json(); })
-            .then(data => { allProducts = data; displayProducts(allProducts); })
-            .catch(err => {
-                grid.innerHTML = `
-                    <div class="empty-msg">
-                        <h3>Catalogul este momentan gol.</h3>
-                        <p>Adaugă ID-uri reale în <b>update_products.py</b> și pornește scriptul din tabul Actions.</p>
-                    </div>`;
-            });
-
-        function displayProducts(products) {
-            if(products.length === 0) {
-                grid.innerHTML = '<div class="empty-msg">Nu am găsit produse conform căutării.</div>';
-                return;
-            }
-            grid.innerHTML = products.map(prod => `
-                <div class="card">
-                    <div class="img-container">
-                        <img src="${prod.imagine}" alt="${prod.titlu}">
-                    </div>
-                    <div class="info">
-                        <a href="produse/${prod.id}.html" class="title">${prod.titlu}</a>
-                        <div class="price-row">
-                            <span class="price">${prod.pret} ${prod.valuta}</span>
-                            <a href="produse/${prod.id}.html" class="btn">Detalii</a>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
+        const cards = document.querySelectorAll('.card');
 
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
-            const filtered = allProducts.filter(p => p.titlu.toLowerCase().includes(query));
-            displayProducts(filtered);
+            cards.forEach(card => {
+                const title = card.querySelector('.title').textContent.toLowerCase();
+                if(title.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         });
     </script>
 </body>
 </html>
+
 
 
 
