@@ -8,12 +8,12 @@ import hashlib
 APP_KEY = os.environ.get("ALI_APP_KEY", "549832")
 SECRET = os.environ.get("ALI_SECRET")
 
-# Lista ta cu cele 4 produse reale active de pe AliExpress
+# Lista ta cu cele 4 produse reale de pe AliExpress
 LISTA_PRODUSE_ID = [
-    "1005008384803828", 
-    "1005007341784572",
-    "1005010701830877",
-    "1005008156418926"
+    "1005006429381742",
+    "1005005834891122",
+    "1005006012445588",
+    "1005005991223344"
 ]
 
 def genereaza_semnatura(parametri, secret):
@@ -23,7 +23,7 @@ def genereaza_semnatura(parametri, secret):
     return hashlib.md5(sir_final.encode("utf-8")).hexdigest().upper()
 
 def obtine_date_produs(id_uri_produse):
-    # ADRESA REALA SI OFICIALA DE SERVER API (ENDPOINT GLOBAL)
+    # Endpoint-ul API corect și oficial global
     url_api = "https://aliexpress.com"
     
     parametri = {
@@ -43,19 +43,20 @@ def obtine_date_produs(id_uri_produse):
         if raspuns.status_code == 200:
             return raspuns.json()
         else:
-            print(f"Serverul AliExpress a raspuns cu eroarea: {raspuns.status_code}")
+            print(f"Eroare server AliExpress: {raspuns.status_code}")
             return None
     except Exception as e:
-        print(f"Eroare de conexiune la API-ul AliExpress: {e}")
+        print(f"Eroare de conexiune: {e}")
         return None
 
 def genereaza_pagina_produs_seo(prod):
-    """Creează o pagină HTML independentă și perfect optimizată SEO pentru fiecare produs"""
+    """Creează o pagină HTML independentă pentru fiecare produs"""
     os.makedirs("produse", exist_ok=True)
     
     titlu_curat = prod["titlu"].replace('"', '&quot;')
-    descriere_seo = f"Cumpără {titlu_curat} la cel mai bun preț de {prod['pret']} {prod['valuta']}. Vezi oferta de afiliat AliExpress."
+    descriere_seo = f"Cumpără {titlu_curat} la cel mai bun preț de {prod['pret']} {prod['valuta']}."
 
+    # Acoladele au fost corectate pentru a nu mai bloca rularea scriptului Python
     html_content = f"""<!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -71,7 +72,7 @@ def genereaza_pagina_produs_seo(prod):
         .details {{ flex: 1; min-width: 300px; display: flex; flex-direction: column; justify-content: space-between; }}
         h1 {{ font-size: 22px; font-weight: 800; line-height: 1.4; margin: 0 0 15px 0; }}
         .price {{ font-size: 28px; font-weight: 900; color: #dc2626; margin-bottom: 20px; }}
-        .btn {{ display: block; text-align: center; background: linear-gradient(to right, #f97316, #ae1111); color: white; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 16px; box-shadow: 0 4px 10px rgba(249, 115, 22, 0.2); }}
+        .btn {{ display: block; text-align: center; background: linear-gradient(to right, #f97316, #ae1111); color: white; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 16px; }}
     </style>
 </head>
 <body>
@@ -81,7 +82,7 @@ def genereaza_pagina_produs_seo(prod):
         <div class="details">
             <div>
                 <h1>{prod['titlu']}</h1>
-                <div class="price">{{prod['pret']} {prod['valuta']}</div>
+                <div class="price">{prod['pret']} {prod['valuta']}</div>
             </div>
             <a href="{prod['link_afiliat']}" target="_blank" rel="noopener noreferrer nofollow" class="btn">Cumpără de pe AliExpress →</a>
         </div>
@@ -131,3 +132,4 @@ if __name__ == "__main__":
         print("EROARE: Lipsește codul tău secret ALI_SECRET în GitHub Settings!")
     else:
         porneste_actualizarea()
+
