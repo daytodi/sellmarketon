@@ -8,7 +8,7 @@ import hashlib
 APP_KEY = os.environ.get("ALI_APP_KEY", "549832")
 SECRET = os.environ.get("ALI_SECRET")
 
-# Lista ta cu cele 4 produse reale active de pe AliExpress
+# Lista ta cu cele 4 produse reale de pe AliExpress
 LISTA_PRODUSE_ID = [
     "1005008384803828", 
     "1005007341784572",
@@ -23,8 +23,8 @@ def genereaza_semnatura(parametri, secret):
     return hashlib.md5(sir_final.encode("utf-8")).hexdigest().upper()
 
 def obtine_date_produs(id_uri_produse):
-    # ACESTA ESTE ENDPOINT-UL OFICIAL DE API PENTRU PRODUSE DE AFILIERE
-    url_api = "https://alibaba.com" + APP_KEY
+    # Serverul global stabil AliExpress care a mers de prima dată
+    url_api = "https://aliexpress.com"
     
     parametri = {
         "app_key": APP_KEY,
@@ -39,7 +39,6 @@ def obtine_date_produs(id_uri_produse):
     parametri["sign"] = genereaza_semnatura(parametri, SECRET)
     
     try:
-        # Cerere securizată către serverul oficial de API AliExpress
         raspuns = requests.get(url_api, params=parametri, timeout=15)
         return raspuns.json()
     except Exception as e:
@@ -93,7 +92,6 @@ def porneste_actualizarea():
     print("Se curăță baza de date și se pornește importul...")
     rezultate_noi =
     
-    # AliExpress acceptă loturi de maxim 100 de produse per cerere
     for i in range(0, len(LISTA_PRODUSE_ID), 100):
         lot_produse = LISTA_PRODUSE_ID[i:i+100]
         date_api = obtine_date_produs(lot_produse)
@@ -119,7 +117,6 @@ def porneste_actualizarea():
         
         time.sleep(1.5)
 
-    # Salvarea catalogului de produse în format JSON pentru index.html
     with open("products.json", "w", encoding="utf-8") as f:
         json.dump(rezultate_noi, f, indent=4, ensure_ascii=False)
     
@@ -130,4 +127,5 @@ if __name__ == "__main__":
         print("EROARE: Lipsește codul tău secret ALI_SECRET în GitHub Settings!")
     else:
         porneste_actualizarea()
+
 
