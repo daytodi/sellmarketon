@@ -4,10 +4,11 @@ import time
 import requests
 import hashlib
 
+# Configurații API AliExpress (Preluat automat din GitHub Secrets)
 APP_KEY = os.environ.get("ALI_APP_KEY", "549832")
 SECRET = os.environ.get("ALI_SECRET")
 
-# INTRODUCE MAI JOS ID-URILE PRODUSELOR (Adaugă câte vrei, separate prin virgulă, maxim 2000-3000)
+# Pune aici cele 4 ID-uri ale tale reale de pe AliExpress (Exemplu stabil mai jos)
 LISTA_PRODUSE_ID = [
     "1005008384803828", 
     "1005007341784572",
@@ -16,13 +17,14 @@ LISTA_PRODUSE_ID = [
 ]
 
 def genereaza_semnatura(parametri, secret):
+    """Generează semnătura digitală MD5 obligatorie pentru AliExpress Open API"""
     sir_sortat = "".join(f"{k}{v}" for k, v in sorted(parametri.items()))
     sir_final = f"{secret}{sir_sortat}{secret}"
     return hashlib.md5(sir_final.encode("utf-8")).hexdigest().upper()
 
 def obtine_date_produs(id_uri_produse):
-    # Folosim gateway-ul stabil global
-    url_api = "https://aliexpress.com" 
+    # ADRESA CORECTĂ ȘI OFICIALĂ GLOBALĂ PENTRU ALIEXPRESS PORTALS API
+    url_api = "https://aliexpress.com"
     
     parametri = {
         "app_key": APP_KEY,
@@ -37,58 +39,48 @@ def obtine_date_produs(id_uri_produse):
     parametri["sign"] = genereaza_semnatura(parametri, SECRET)
     
     try:
+        # Cerere securizată către serverul AliExpress
         raspuns = requests.get(url_api, params=parametri, timeout=15)
         return raspuns.json()
     except Exception as e:
-        print(f"Eroare API: {e}")
+        print(f"Eroare de conexiune la API-ul AliExpress: {e}")
         return None
 
 def genereaza_pagina_produs_seo(prod):
-    """Creează o pagină HTML independentă și perfect optimizată SEO pentru Google"""
+    """Creează o pagină HTML independentă și perfect optimizată SEO pentru fiecare produs"""
     os.makedirs("produse", exist_ok=True)
     
     titlu_curat = prod["titlu"].replace('"', '&quot;')
-    descriere_seo = f"Cumpără {titlu_curat} la cel mai bun preț de {prod['pret']} {prod['valuta']}. Vezi recenzii, imagini și oferta de afiliat AliExpress."
+    descriere_seo = f"Cumpără {titlu_curat} la cel mai bun preț de {prod['pret']} {prod['valuta']}. Vezi oferta de afiliat AliExpress."
 
     html_content = f"""<!DOCTYPE html>
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{titlu_curat} - Cel Mai Bun Preț: {prod['pret']} {prod['valuta']}</title>
+    <title>{titlu_curat} - Preț: {prod['pret']} {prod['valuta']}</title>
     <meta name="description" content="{descriere_seo}">
-    <script src="https://jsdelivr.net"></script>
-    <link rel="stylesheet" href="https://cloudflare.com">
-    
-    <!-- Meta-taguri SEO OpenGraph pentru Facebook/WhatsApp/Google -->
-    <meta property="og:title" content="{titlu_curat}">
-    <meta property="og:description" content="{descriere_seo}">
-    <meta property="og:image" content="{prod['imagine']}">
-    <meta property="og:type" content="product">
+    <style>
+        body {{ font-family: system-ui, -apple-system, sans-serif; background: #f9fafb; color: #111827; margin: 0; padding: 20px; }}
+        .container {{ max-width: 800px; margin: 40px auto; background: white; padding: 30px; border-radius: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-wrap: wrap; gap: 30px; border: 1px solid #f3f4f6; }}
+        .back-link {{ display: block; max-width: 800px; margin: 0 auto 20px auto; color: #f97316; text-decoration: none; font-weight: 700; }}
+        img {{ max-width: 100%; width: 350px; height: 350px; object-fit: cover; border-radius: 16px; }}
+        .details {{ flex: 1; min-width: 300px; display: flex; flex-direction: column; justify-content: space-between; }}
+        h1 {{ font-size: 22px; font-weight: 800; line-height: 1.4; margin: 0 0 15px 0; }}
+        .price {{ font-size: 28px; font-weight: 900; color: #dc2626; margin-bottom: 20px; }}
+        .btn {{ display: block; text-align: center; background: linear-gradient(to right, #f97316, #ae1111); color: white; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 16px; box-shadow: 0 4px 10px rgba(249, 115, 22, 0.2); }}
+    </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans">
-    <header class="bg-white shadow-sm py-4 mb-8">
-        <div class="max-w-4xl mx-auto px-4 flex justify-between items-center">
-            <a href="../index.html" class="text-xl font-bold text-orange-500"><i class="fa-solid fa-arrow-left"></i> Înapoi la Catalog</a>
-        </div>
-    </header>
-
-    <main class="max-w-4xl mx-auto px-4 py-6 bg-white rounded-3xl shadow-xs border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-            <img src="{prod['imagine']}" alt="{titlu_curat}" class="w-full h-auto rounded-2xl object-cover shadow-sm">
-        </div>
-        <div class="flex flex-col justify-between">
+<body>
+    <a href="../index.html" class="back-link">← Înapoi la Catalog</a>
+    <main class="container">
+        <img src="{prod['imagine']}" alt="{titlu_curat}">
+        <div class="details">
             <div>
-                <h1 class="text-xl sm:text-2xl font-black text-gray-900 mb-4 leading-tight">{prod['titlu']}</h1>
-                <p class="text-sm text-gray-500 mb-2">ID Produs: <span class="font-mono text-xs">{prod['id']}</span></p>
-                <div class="inline-block bg-red-50 text-red-700 px-4 py-2 rounded-2xl font-bold text-xl mb-6">
-                    Preț: {prod['pret']} {prod['valuta']}
-                </div>
+                <h1>{prod['titlu']}</h1>
+                <div class="price">{prod['pret']} {prod['valuta']}</div>
             </div>
-            
-            <a href="{prod['link_afiliat']}" target="_blank" rel="noopener noreferrer nofollow" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-extrabold text-center py-4 rounded-2xl transition-all shadow-md block text-lg">
-                Vezi Oferta pe AliExpress <i class="fa-solid fa-up-right-from-square ml-2 text-sm"></i>
-            </a>
+            <a href="{prod['link_afiliat']}" target="_blank" rel="noopener noreferrer nofollow" class="btn">Cumpără de pe AliExpress →</a>
         </div>
     </main>
 </body>
@@ -98,9 +90,10 @@ def genereaza_pagina_produs_seo(prod):
         f.write(html_content)
 
 def porneste_actualizarea():
-    print("Curățare fișiere vechi și inițiere import API...")
-    rezultate_noi = []
+    print("Se curăță baza de date și se pornește importul...")
+    rezultate_noi =
     
+    # AliExpress acceptă loturi de maxim 100 de produse
     for i in range(0, len(LISTA_PRODUSE_ID), 100):
         lot_produse = LISTA_PRODUSE_ID[i:i+100]
         date_api = obtine_date_produs(lot_produse)
@@ -115,25 +108,25 @@ def porneste_actualizarea():
                             "id": str(prod.get("product_id")),
                             "titlu": prod.get("product_title"),
                             "pret": prod.get("target_sale_price"),
-                            "valuta": prod.get("target_sale_price_currency", "USD"),
+                            "valuta": prod.get("target_sale_price_currency", "EUR"),
                             "link_afiliat": prod.get("promotion_link"),
                             "imagine": prod.get("product_main_image_url")
                         }
                         rezultate_noi.append(item)
-                        # Generăm automat fișierul HTML pentru SEO
                         genereaza_pagina_produs_seo(item)
             except Exception as e:
-                print(f"Eroare la procesarea structurii: {e}")
+                print(f"Eroare la citirea datelor primite: {e}")
         
         time.sleep(1.5)
 
+    # Suprascrierea curată a fișierului general de pe site
     with open("products.json", "w", encoding="utf-8") as f:
         json.dump(rezultate_noi, f, indent=4, ensure_ascii=False)
     
-    print(f"Sincronizare finalizată cu succes pentru {len(rezultate_noi)} produse.")
+    print(f"Gata! Am salvat {len(rezultate_noi)} produse în products.json.")
 
 if __name__ == "__main__":
     if not SECRET:
-        print("EROARE CRITICĂ: Lipsește secretul de securitate ALI_SECRET!")
+        print("EROARE: Lipsește codul tău secret ALI_SECRET în GitHub Settings!")
     else:
         porneste_actualizarea()
