@@ -10,10 +10,10 @@ SECRET = os.environ.get("ALI_SECRET", "")  # Va căuta App Secret în GitHub Sec
 
 # Lista ta cu cele 4 produse reale de pe AliExpress
 LISTA_PRODUSE_ID = [
-    "1005006429381742",
-    "1005005834891122",
-    "1005006012445588",
-    "1005005991223344"
+    "1005008384803828", 
+    "1005007341784572",
+    "1005010701830877",
+    "1005008156418926"
 ]
 
 def genereaza_semnatura(parametri, secret):
