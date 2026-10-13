@@ -9,9 +9,10 @@ SECRET = os.environ.get("ALI_SECRET")
 
 # INTRODUCE MAI JOS ID-URILE PRODUSELOR (Adaugă câte vrei, separate prin virgulă, maxim 2000-3000)
 LISTA_PRODUSE_ID = [
-    "1005006123456789", 
-    "1005007987654321",
-    "1005005544332211"
+    "1005008384803828", 
+    "1005007341784572",
+    "1005010701830877",
+    "1005008156418926"
 ]
 
 def genereaza_semnatura(parametri, secret):
