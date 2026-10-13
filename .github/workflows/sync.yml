@@ -1,0 +1,35 @@
+name: Sincronizare si Generare SEO AliExpress
+
+on:
+  schedule:
+    - cron: '0 2 */3 * *' # Rulează la fiecare 3 zile, la 02:00 noaptea
+  workflow_dispatch: # Îți adaugă buton manual să-l pornești oricând vrei tu
+
+jobs:
+  build-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sincronizare Cod Sursă
+        uses: actions/checkout@v4
+
+      - name: Configurare Mediu Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Instalare Dependențe
+        run: pip install requests
+
+      - name: Executare Script Python si Generare Pagini
+        env:
+          ALI_APP_KEY: "549832"
+          ALI_SECRET: ${{ secrets.ALI_SECRET }}
+        run: python update_products.py
+
+      - name: Publicare Pagini Generate pe GitHub Pages
+        run: |
+          git config --global user.name 'AliExpress SEO Bot'
+          git config --global user.email 'seo-bot@sellmarketon.local'
+          git add products.json produse/*.html
+          git commit -m "Actualizare automată catalog și pagini de produs SEO" || echo "Fără modificări noi"
+          git push
