@@ -4,9 +4,9 @@ import time
 import requests
 import hashlib
 
-# Configurații API AliExpress (Preluat automat din GitHub Secrets)
-APP_KEY = os.environ.get("ALI_APP_KEY", "549832")
-SECRET = os.environ.get("ALI_SECRET")
+# Configurații API AliExpress (Preluat automat din GitHub)
+APP_KEY = "549832"  # Folosește direct AppKey-ul tău trimis
+SECRET = os.environ.get("ALI_SECRET", "")  # Va căuta App Secret în GitHub Secrets
 
 # Lista ta cu cele 4 produse reale de pe AliExpress
 LISTA_PRODUSE_ID = [
@@ -18,12 +18,14 @@ LISTA_PRODUSE_ID = [
 
 def genereaza_semnatura(parametri, secret):
     """Generează semnătura digitală MD5 obligatorie pentru AliExpress Open API"""
+    if not secret:
+        return ""
     sir_sortat = "".join(f"{k}{v}" for k, v in sorted(parametri.items()))
     sir_final = f"{secret}{sir_sortat}{secret}"
     return hashlib.md5(sir_final.encode("utf-8")).hexdigest().upper()
 
 def obtine_date_produs(id_uri_produse):
-    # Endpoint-ul API corect și oficial global
+    # Endpoint-ul API oficial global AliExpress
     url_api = "https://aliexpress.com"
     
     parametri = {
@@ -36,17 +38,19 @@ def obtine_date_produs(id_uri_produse):
         "product_ids": ",".join(id_uri_produse)
     }
     
-    parametri["sign"] = genereaza_semnatura(parametri, SECRET)
+    sign = genereaza_semnatura(parametri, SECRET)
+    if sign:
+        parametri["sign"] = sign
     
     try:
         raspuns = requests.get(url_api, params=parametri, timeout=15)
         if raspuns.status_code == 200:
             return raspuns.json()
         else:
-            print(f"Eroare server AliExpress: {raspuns.status_code}")
+            print(f"Serverul AliExpress a răspuns cu status: {raspuns.status_code}")
             return None
     except Exception as e:
-        print(f"Eroare de conexiune: {e}")
+        print(f"Eroare de conexiune la API-ul AliExpress: {e}")
         return None
 
 def genereaza_pagina_produs_seo(prod):
@@ -56,7 +60,6 @@ def genereaza_pagina_produs_seo(prod):
     titlu_curat = prod["titlu"].replace('"', '&quot;')
     descriere_seo = f"Cumpără {titlu_curat} la cel mai bun preț de {prod['pret']} {prod['valuta']}."
 
-    # Acoladele au fost corectate pentru a nu mai bloca rularea scriptului Python
     html_content = f"""<!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -94,9 +97,12 @@ def genereaza_pagina_produs_seo(prod):
         f.write(html_content)
 
 def porneste_actualizarea():
-    print("Se curăță baza de date și se pornește importul...")
-    rezultate_noi =
+    print("Se inițiază importul datelor...")
+    rezultate_noi = []
     
+    if not SECRET:
+        print("AVERTISMENT: Nu s-a detectat codul ALI_SECRET în GitHub. API-ul va rula fără semnătură.")
+
     for i in range(0, len(LISTA_PRODUSE_ID), 100):
         lot_produse = LISTA_PRODUSE_ID[i:i+100]
         date_api = obtine_date_produs(lot_produse)
@@ -118,18 +124,20 @@ def porneste_actualizarea():
                         rezultate_noi.append(item)
                         genereaza_pagina_produs_seo(item)
             except Exception as e:
-                print(f"Eroare la citirea datelor interne: {e}")
+                print(f"Structura API returnată nu a putut fi citită: {e}")
         
         time.sleep(1.5)
 
+    # Protecție: dacă fișierul nu preia nimic de la API, păstrăm o structură JSON validă ca site-ul să nu dea erori
+    if len(rezultate_noi) == 0:
+        print("Notă: API-ul nu a returnat produse active. Se generează un fișier gol securizat.")
+        
     with open("products.json", "w", encoding="utf-8") as f:
         json.dump(rezultate_noi, f, indent=4, ensure_ascii=False)
     
-    print(f"Gata! Am salvat {len(rezultate_noi)} produse în products.json.")
+    print(f"Proces finalizat. Am salvat {len(rezultate_noi)} produse active.")
 
 if __name__ == "__main__":
-    if not SECRET:
-        print("EROARE: Lipsește codul tău secret ALI_SECRET în GitHub Settings!")
-    else:
-        porneste_actualizarea()
+    porneste_actualizarea()
+
 
