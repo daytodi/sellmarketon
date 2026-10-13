@@ -3,91 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SellMarketON - Top Oferte și Gadgeturi AliExpress</title>
-    <meta name="description" content="Descoperă cele mai bune reduceri și produse de top de pe AliExpress. Prețuri actualizate automat la fiecare 3 zile.">
-    <!-- Linkuri oficiale complete pentru design și pictograme -->
-    <script src="https://jsdelivr.net"></script>
-    <link rel="stylesheet" href="https://cloudflare.com">
+    <title>SellMarketON - Top Oferte AliExpress</title>
+    <meta name="description" content="Cele mai bune reduceri și produse de top de pe AliExpress.">
+    <!-- Stiluri de rezervă integrate direct pentru a ocoli blocajele de VPN/extensii -->
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: #f9fafb; color: #111827; margin: 0; padding: 0; }
+        header { background-color: white; border-bottom: 1px solid #f3f4f6; padding: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .nav-container { max-w: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .logo { font-size: 24px; font-weight: 900; color: #f97316; text-decoration: none; }
+        .logo span { color: #111827; }
+        .search-box { padding: 8px 16px; border: 1px solid #e5e7eb; rounded-radius: 9999px; border-radius: 20px; width: 280px; outline: none; }
+        main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .hero { text-align: center; padding: 30px 0; }
+        .hero h1 { font-size: 32px; font-weight: 800; margin-bottom: 10px; }
+        .hero p { color: #6b7280; font-size: 16px; margin: 0; }
+        .grid { display: grid; grid-template-cols: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; padding: 20px 0; }
+        .card { background: white; border: 1px solid #f3f4f6; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.02); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .img-container { position: relative; padding-top: 100%; background: #f3f4f6; }
+        .img-container img { position: absolute; top: 0; left: 0; width: 100%; h-height: 100%; height: 100%; object-fit: cover; }
+        .info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .title { font-size: 14px; font-weight: 600; color: #1f2937; margin: 0 0 10px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 40px; text-decoration: none; }
+        .title:hover { color: #f97316; }
+        .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+        .price { font-size: 18px; font-weight: 900; color: #dc2626; }
+        .btn { background: #f97316; color: white; padding: 8px 14px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700; transition: background 0.2s; }
+        .btn:hover { background: #ea580c; }
+        .empty-msg { text-align: center; color: #4b5563; padding: 40px; background: white; border-radius: 16px; border: 1px dashed #e5e7eb; grid-column: 1 / -1; }
+    </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans">
+<body>
 
-    <!-- Header / Navigație -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <a href="index.html" class="text-2xl font-black tracking-tight bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent flex items-center gap-2">
-                <i class="fa-solid fa-bag-shopping text-orange-500"></i> SellMarket<span class="text-gray-900">ON</span>
-            </a>
-            <div class="w-full sm:w-96 relative">
-                <input type="text" id="searchBar" placeholder="Caută produse de top..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 bg-gray-50 transition-all">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-400 text-sm"></i>
-            </div>
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">SellMarket<span>ON</span></a>
+            <input type="text" id="searchBar" placeholder="Caută produse de top..." class="search-box">
         </div>
     </header>
 
-    <!-- Secțiune Titlu -->
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        <section class="text-center py-8 max-w-2xl mx-auto">
-            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3 text-gray-900">Cele Mai Generate și Căutate Produse AliExpress</h1>
-            <p class="text-gray-500 text-sm sm:text-base">Prețurile și stocurile sunt verificate și actualizate automat direct prin API-ul oficial di afiliere.</p>
+    <main>
+        <section class="hero">
+            <h1>Cele Mai Căutate Produse AliExpress</h1>
+            <p>Prețuri actualizate automat direct prin API-ul oficial de afiliere.</p>
         </section>
 
-        <!-- Gridul cu Produse -->
-        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            <div class="col-span-full text-center py-12 text-gray-400">
-                <i class="fa-solid fa-spinner animate-spin text-3xl mb-2 text-orange-500"></i>
-                <p>Se încarcă catalogul de produse...</p>
-            </div>
+        <div id="productsGrid" class="grid">
+            <div class="empty-msg">Se încarcă catalogul...</div>
         </div>
     </main>
 
     <script>
-        let allProducts = [];
+        let allProducts =;
         const grid = document.getElementById('productsGrid');
         const searchInput = document.getElementById('searchBar');
 
         fetch('products.json')
-            .then(res => {
-                if(!res.ok) throw new Error();
-                return res.json();
-            })
-            .then(data => {
-                allProducts = data;
-                displayProducts(allProducts);
-            })
+            .then(res => { if(!res.ok) throw new Error(); return res.json(); })
+            .then(data => { allProducts = data; displayProducts(allProducts); })
             .catch(err => {
                 grid.innerHTML = `
-                    <div class="col-span-full text-center text-gray-500 py-12">
-                        <i class="fa-solid fa-store-slash text-3xl mb-2 text-gray-300"></i>
-                        <p class="font-medium">Catalogul este momentan gol.</p>
-                        <p class="text-sm text-gray-400 mt-1">Adaugă ID-uri reale în update_products.py și rulează scriptul din Actions pentru a genera produsele.</p>
+                    <div class="empty-msg">
+                        <h3>Catalogul este momentan gol.</h3>
+                        <p>Adaugă ID-uri reale în <b>update_products.py</b> și pornește scriptul din tabul Actions.</p>
                     </div>`;
             });
 
         function displayProducts(products) {
             if(products.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-12"><p>Nu am găsit produse.</p></div>`;
+                grid.innerHTML = '<div class="empty-msg">Nu am găsit produse conform căutării.</div>';
                 return;
             }
             grid.innerHTML = products.map(prod => `
-                <article class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col group">
-                    <div class="relative pt-[100%] bg-gray-100">
-                        <img src="${prod.imagine}" alt="${prod.titlu}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                <div class="card">
+                    <div class="img-container">
+                        <img src="${prod.imagine}" alt="${prod.titlu}">
                     </div>
-                    <div class="p-4 flex flex-col flex-grow">
-                        <h2 class="text-xs sm:text-sm font-semibold text-gray-800 line-clamp-2 mb-2 group-hover:text-orange-500 h-10">
-                            <a href="produse/${prod.id}.html">${prod.titlu}</a>
-                        </h2>
-                        <div class="mt-auto pt-2 flex items-center justify-between">
-                            <div>
-                                <span class="text-[10px] text-gray-400 block font-medium">Preț Redus</span>
-                                <span class="text-base font-black text-red-600">${prod.pret} ${prod.valuta}</span>
-                            </div>
-                            <a href="produse/${prod.id}.html" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-xl transition-colors text-xs font-bold flex items-center gap-1 shadow-sm">
-                                Detalii <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                            </a>
+                    <div class="info">
+                        <a href="produse/${prod.id}.html" class="title">${prod.titlu}</a>
+                        <div class="price-row">
+                            <span class="price">${prod.pret} ${prod.valuta}</span>
+                            <a href="produse/${prod.id}.html" class="btn">Detalii</a>
                         </div>
                     </div>
-                </article>
+                </div>
             `).join('');
         }
 
@@ -99,5 +97,6 @@
     </script>
 </body>
 </html>
+
 
 
