@@ -11,8 +11,8 @@ SECRET = os.environ.get("ALI_SECRET", "")
 # Introdu aici cele 2 ID-uri de produse pe care vrei să le monitorizezi.
 # Prețul acestora va fi extras proaspăt direct din baza de date AliExpress.
 LISTA_PRODUSE_ID = [
-    "1005006093847125",
-    "1005005938471102"
+    "1005008384803828",
+    "1005006120382878"
 ]
 
 def genereaza_semnatura(parametri, secret):
