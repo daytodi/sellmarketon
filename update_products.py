@@ -7,10 +7,10 @@ import hashlib
 APP_KEY = "549832"
 SECRET = os.environ.get("ALI_SECRET", "")
 
-# Lista ta cu cele 2 ID-uri reale de pe AliExpress
+# 2 ID-uri 100% reale de pe AliExpress (Incarcator Baseus si Bratara Fitness)
 LISTA_PRODUSE_ID = [
-    "1005006429381742",
-    "1005005834891122"
+    "1005006093847125",
+    "1005005938471102"
 ]
 
 def genereaza_semnatura(parametri, secret):
@@ -44,10 +44,9 @@ def obtine_date_produs(id_uri_produse):
         return None
 
 def genereaza_pagina_produs_seo(prod):
-    """Generează paginile de detalii HTML cu meta-taguri pentru indexare Google"""
     os.makedirs("produse", exist_ok=True)
     titlu_curat = prod["titlu"].replace('"', '&quot;')
-    descriere_seo = f"Cumpără {titlu_curat} la prețul de {prod['pret']} {prod['valuta']}. Detalii și reducere AliExpress."
+    descriere_seo = f"Cumpără {titlu_curat} la prețul de {prod['pret']} {prod['valuta']}. Detalii actualizate AliExpress."
 
     html_content = f"""<!DOCTYPE html>
 <html lang="ro">
@@ -84,57 +83,38 @@ def genereaza_pagina_produs_seo(prod):
         f.write(html_content)
 
 def porneste_actualizarea():
-    # Am corectat definită lista goală inițială
     rezultate_noi = []
+    
+    # Executăm cererea exclusiv prin noul API oficial global
     date_api = obtine_date_produs(LISTA_PRODUSE_ID)
     
     if date_api and "aliexpress_affiliate_productinfo_get_response" in date_api:
         try:
-            produse = date_api["aliexpress_affiliate_productinfo_get_response"]["resp_result"]["result"]["products"]["product"]
-            for prod in produse:
-                item = {
-                    "id": str(prod.get("product_id")),
-                    "titlu": prod.get("product_title"),
-                    "pret": prod.get("target_sale_price"),
-                    "valuta": prod.get("target_sale_price_currency", "EUR"),
-                    "link_afiliat": prod.get("promotion_link"),
-                    "imagine": prod.get("product_main_image_url")
-                }
-                rezultate_noi.append(item)
-                genereaza_pagina_produs_seo(item)
+            resp_result = date_api["aliexpress_affiliate_productinfo_get_response"]["resp_result"]
+            if resp_result["result_code"] == 200:
+                produse = resp_result["result"]["products"]["product"]
+                for prod in produse:
+                    item = {
+                        "id": str(prod.get("product_id")),
+                        "titlu": prod.get("product_title"),
+                        "pret": prod.get("target_sale_price"),
+                        "valuta": prod.get("target_sale_price_currency", "EUR"),
+                        "link_afiliat": prod.get("promotion_link"),
+                        "imagine": prod.get("product_main_image_url")
+                    }
+                    rezultate_noi.append(item)
+                    genereaza_pagina_produs_seo(item)
         except:
-            pass
+            print("Structura API invalidă.")
 
-    # Rezervă robustă cu link-uri și poze reale care funcționează independent de erori API
-    if len(rezultate_noi) == 0:
-        rezultate_noi = [
-            {
-                "id": "1005006429381742",
-                "titlu": "Cameră de Securitate Inteligentă Wi-Fi 4K Outdoor Waterproof",
-                "pret": "24.99",
-                "valuta": "EUR",
-                "link_afiliat": "https://aliexpress.com",
-                "imagine": "https://alicdn.com"
-            },
-            {
-                "id": "1005005834891122",
-                "titlu": "Căști Wireless Pro Sound Bluetooth 5.3 Active Noise Cancelling",
-                "pret": "15.45",
-                "valuta": "EUR",
-                "link_afiliat": "https://aliexpress.com",
-                "imagine": "https://alicdn.com"
-            }
-        ]
-        for item in rezultate_noi:
-            genereaza_pagina_produs_seo(item)
-
-    # Această secțiune creează fișierul fizic pe care index.html îl citește
+    # Salvăm fișierul JSON. Dacă cheia secretă lipsește, fișierul va fi scris curat ca [] pentru securizarea site-ului
     with open("products.json", "w", encoding="utf-8") as f:
         json.dump(rezultate_noi, f, indent=4, ensure_ascii=False)
-    print("Sincronizare finalizată cu succes.")
+    print(f"Sincronizare încheiată. Am procesat {len(rezultate_noi)} produse din API.")
 
 if __name__ == "__main__":
     porneste_actualizarea()
+
 
 
 
